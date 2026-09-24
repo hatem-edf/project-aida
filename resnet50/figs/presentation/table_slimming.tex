@@ -1,0 +1,18 @@
+% requires nothing beyond standard LaTeX
+\begin{table}[t]
+\centering
+{\small (a) Test Errors on CODEBRIM}\\[2pt]
+\begin{tabular}{l|c|c|c|c|c}
+\hline
+Model & Test error (\%) & Parameters & Pruned & FLOPs & Pruned \\
+\hline
+ResNet-50 (Baseline) & \textbf{23.15} {\scriptsize$\pm$2.01} & 23.77M & - & $8.17\times10^{9}$ & - \\
+ResNet-50 (50\% Pruned) & 32.97 {\scriptsize$\pm$2.57} & 12.59M & 47.0\% & $3.35\times10^{9}$ & 59.0\% \\
+ResNet-50 (65\% Pruned) & 34.23 {\scriptsize$\pm$1.93} & 8.92M & 62.5\% & $2.54\times10^{9}$ & 68.9\% \\
+ResNet-50 (80\% Pruned) & 34.34 {\scriptsize$\pm$1.95} & 5.96M & 74.9\% & $1.90\times10^{9}$ & 76.8\% \\
+ResNet-50 (90\% Pruned)$^\dagger$ & 36.39 & 4.64M & 80.5\% & $1.58\times10^{9}$ & 80.6\% \\
+\hline
+\end{tabular}
+\\[2pt]
+{\scriptsize Test error = 100 $-$ exact match ratio; mean $\pm$ std over 3 seeds, $^\dagger$ single run. Input 224$\times$224, so FLOPs are not comparable to CIFAR's 32$\times$32.}
+\end{table}

@@ -1,0 +1,10 @@
+data/
+*.pth
+*.npz
+**/runs/
+**/pruned/
+**/logs/
+resnet50/gallery/
+__pycache__/
+building-inspection-toolkit/
+bikit-models/
