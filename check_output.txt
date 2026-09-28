@@ -1,0 +1,57 @@
+=== job 32964 on RD-HPC-GPU01 at Thu Sep 24 16:20:53 CST 2026 ===
+NVIDIA L20, 46068 MiB, 570.86.10
+python: /share/home/HAF9D47L/work/.venv-bikit/bin/python
+device=cuda  gpu=NVIDIA L20
+checkpoint: /share/home/HAF9D47L/.cache/bikit-models/codebrim-classif-balanced_ViT_s8_1.pth
+parameters: 21,666,091   output order: ['NoDamage', 'Crack', 'Spalling', 'Efflorescence', 'BarsExposed', 'Rust']
+golden test (ours vs published, %, model order: ND Cr Sp Ef BE Ru)
+  image_0000468_crop_0000001.png    0.01   0.01  99.66   0.00  99.46  92.00   max|diff| 0.005
+  image_0000761_crop_0000006.png    0.00   6.06  99.66   0.01 100.00  96.13   max|diff| 0.004
+  image_0001039_crop_0000004.png   75.26   0.00   0.10   0.03   0.00   0.00   max|diff| 0.005
+  image_0001251_crop_0000002.png    0.00  17.40  51.19   0.01  46.29  83.54   max|diff| 0.003
+  image_0001550_crop_0000005.png    0.00  54.15  94.19   0.69  99.63  63.89   max|diff| 0.004
+golden test: PASS  (worst 0.005 pts, tolerance 0.5)
+
+test samples: 632   label order: ['NoDamage', 'Crack', 'Efflorescence', 'Spalling', 'BarsExposed', 'Rust']
+inference: 3.1s for 632 images (4.88 ms/img, incl. data loading)
+
+=== results (%) ===
+ExactMatchRatio  72.31   (target 79.59)
+Accuracy         92.96   (element-wise, README's differs)
+F1 macro         84.86   micro 84.87   (target 89.82)
+Precision macro  86.92   micro 86.49   (target 91.30)
+Recall macro     83.31   micro 83.31   (target 88.54)
+AUROC macro      96.72   (not reported)
+correct samples  457/632   (authors: 503/632)
+
+per-class recall (label order):
+  NoDamage        95.33   (target 94.00, support 150)
+  Crack           84.00   (target 89.33, support 150)
+  Efflorescence   76.51   (target 85.91, support 149)
+  Spalling        86.67   (target 84.00, support 150)
+  BarsExposed     80.67   (target 90.00, support 150)
+  Rust            76.67   (target 88.00, support 150)
+
+without relation post-processing: EMR 68.67   F1 84.86   P 82.27   R 88.09
+
+saved -> results/codebrim-classif-balanced_ViT_s8_1_test.json (+ _raw.npz)
+=== done Thu Sep 24 16:21:02 CST 2026 ===
+562c563fc449a3b6e1ae10af2da9b37d  data/CODEBRIM_classification_balanced_dataset.zip
+[1] image bytes vs the CRC32 recorded in CODEBRIM_classification_balanced_dataset.zip
+    1248 val/test images: 0 differ, 0 missing on disk, 0 not in zip  -> all byte-identical to the zip
+
+[2] bikit CSV labels vs official annotations in /share/home/HAF9D47L/.cache/bikit/codebrim-classif-balanced/classification_dataset_balanced/metadata
+    10464 annotated crops; XML tag order(s): [('Background', 'Crack', 'Spallation', 'Efflorescence', 'ExposedBars', 'CorrosionStain'), ('Crack', 'Spallation', 'Background', 'Efflorescence', 'ExposedBars', 'CorrosionStain')]
+    crop names present in BOTH background.xml and defects.xml: 0
+    test  632 rows: 0 with different labels, 0 without an official entry
+          positives  bikit:    ND 150  Cr 150  Ef 149  Sp 150  BE 150  Ru 150
+          positives  official: ND 150  Cr 150  Ef 149  Sp 150  BE 150  Ru 150
+    val   616 rows: 0 with different labels, 0 without an official entry
+          positives  bikit:    ND 150  Cr 149  Ef 141  Sp 140  BE 142  Ru 146
+          positives  official: ND 150  Cr 149  Ef 141  Sp 140  BE 142  Ru 146
+
+[3] saved predictions scored against both label sets (EMR / F1 macro, %)
+    ViT_s8_1              test  bikit labels  72.31 / 84.86   official  72.31 / 84.86   published EMR 79.59
+    ViT_s8_1 no relation  test  bikit labels  68.67 / 84.86   official  68.67 / 84.86   published EMR 79.59
+    ResNet50              test  bikit labels  64.24 / 78.92   official  64.24 / 78.92   published EMR 71.36
+    ResNet50              val   bikit labels  61.36 / 77.30   official  61.36 / 77.30   published EMR 79.06
