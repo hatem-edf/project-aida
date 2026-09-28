@@ -18,7 +18,7 @@ cd /share/home/HAF9D47L/work/project-aida/resnet50
 
 CKPT="${CKPT:?set CKPT=pruned/xxx.pth}"
 SEED="${SEED:-0}"
-TAG="$(basename "${CKPT%.pth}")_seed${SEED}"
+TAG="${TAG:-$(basename "${CKPT%.pth}")_seed${SEED}}"
 
 python finetune_pruned.py \
     --ckpt "$CKPT" \

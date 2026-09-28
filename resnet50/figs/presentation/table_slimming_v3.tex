@@ -1,0 +1,26 @@
+\begin{table}[t]
+\centering
+{\small Test Errors on CODEBRIM}\\[2pt]
+\begin{tabular}{l|c|c|c|c|c}
+\hline
+Model & Test error (\%) & Parameters & Pruned & FLOPs & Pruned \\
+\hline
+\multicolumn{6}{l}{\textit{Reference}} \\
+ResNet-50 (released)$^\ddagger$ & 29.11 & 23.77M & - & $8.17\times10^{9}$ & - \\
+\hline
+\multicolumn{6}{l}{\textit{Fine-tuning: 160 epochs}} \\
+ResNet-50 (Baseline) & \textbf{20.68} {\scriptsize$\pm$1.11} & 23.77M & - & $8.17\times10^{9}$ & - \\
+ResNet-50 (50\% Pruned) & 29.32 {\scriptsize$\pm$1.83} & 12.62M & 46.9\% & $3.36\times10^{9}$ & 58.9\% \\
+ResNet-50 (65\% Pruned) & 32.49 {\scriptsize$\pm$3.66} & 8.89M & 62.6\% & $2.54\times10^{9}$ & 68.9\% \\
+ResNet-50 (80\% Pruned) & 34.92 {\scriptsize$\pm$2.06} & 5.92M & 75.1\% & $1.89\times10^{9}$ & 76.9\% \\
+\hline
+\multicolumn{6}{l}{\textit{Fine-tuning: 40 epochs}} \\
+ResNet-50 (Baseline) & \textbf{23.15} {\scriptsize$\pm$2.00} & 23.77M & - & $8.17\times10^{9}$ & - \\
+ResNet-50 (50\% Pruned) & 31.70 {\scriptsize$\pm$1.78} & 12.62M & 46.9\% & $3.36\times10^{9}$ & 58.9\% \\
+ResNet-50 (65\% Pruned) & 34.12 {\scriptsize$\pm$2.29} & 8.89M & 62.6\% & $2.54\times10^{9}$ & 68.9\% \\
+ResNet-50 (80\% Pruned) & 36.60 {\scriptsize$\pm$1.00} & 5.92M & 75.1\% & $1.89\times10^{9}$ & 76.9\% \\
+\hline
+\end{tabular}
+\\[2pt]
+{\scriptsize Test error = 100 $-$ exact match ratio; mean $\pm$ std over 3 seeds.  Pruned models: sparsity training ($\lambda = 5\times10^{-5}$, 40 epochs) from the 40-epoch baseline, channel pruning, then fine-tuning.  $^\ddagger$ Released checkpoint, evaluated with its original preprocessing (short side 256, center crop 224); all other rows use a 224$\times$224 resize.  FLOPs for one 224$\times$224 image.}
+\end{table}
