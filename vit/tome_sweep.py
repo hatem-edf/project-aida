@@ -6,6 +6,7 @@ actual token trace, and times batches of 64 images on the GPU (images only, no d
 loading). r=0 is the unmodified model (checked against the plain model at start-up).
 
   sbatch tome_sweep.sh
+  python tome_sweep.py --ckpt runs/vit_X/best.pth --out results/tome_X
   -> results/tome_sweep.json and results/tome_sweep_probs.npz
 """
 import argparse, copy, json, os, time
@@ -14,7 +15,7 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader
 
-from vit_model import DEFAULT_CKPT, build_transform, load_vit, reorder_index
+from vit_model import DEFAULT_CKPT, build_transform, encoder_dims, load_vit, reorder_index
 from eval_vit import compute_metrics
 from tome_vit import apply_tome, vit_flops
 
@@ -24,7 +25,7 @@ SHORT = {"NoDamage": "ND", "Crack": "Cr", "Efflorescence": "Ef", "Spalling": "Sp
 
 def parse_args():
     p = argparse.ArgumentParser()
-    p.add_argument("--ckpt", default=str(DEFAULT_CKPT))
+    p.add_argument("--ckpt", default=str(DEFAULT_CKPT), help="any checkpoint in bikit-models layout")
     p.add_argument("--r", default="0,4,8,12,16,24,32,40,48,56,64")
     p.add_argument("--batch-size", type=int, default=64)
     p.add_argument("--workers", type=int, default=8)
@@ -67,6 +68,7 @@ def main():
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"device={dev}" + (f"  gpu={torch.cuda.get_device_name(0)}" if dev == "cuda" else ""))
     model, names, cp = load_vit(a.ckpt)
+    print(f"checkpoint: {a.ckpt}")
     model.to(dev).eval()
     tf = build_transform(cp["img_size"], mode="eval")
     data = {s: load_split(s, tf, a) for s in ("val", "test")}
@@ -93,7 +95,7 @@ def main():
                 probs_out[f"r{r}"] = P
         tm(data["test"][0][:1].to(dev))                       # token trace for one image
         res["tokens"] = list(tm.encoder._tome["tokens"])
-        res["gflops"] = vit_flops(res["tokens"], tm.encoder._tome["r"]) / 1e9
+        res["gflops"] = vit_flops(res["tokens"], tm.encoder._tome["r"], encoder_dims(tm.encoder)) / 1e9
         res["img_per_s"] = throughput(tm, data["test"][0], dev, a.batch_size)
         rows.append(res)
         t = res["test"]

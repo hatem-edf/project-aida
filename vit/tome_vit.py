@@ -47,15 +47,21 @@ def bipartite_soft_matching(metric, r):
 
 
 def _attn_forward(self, x, size):
-    """Attention as in vistranet_1, plus proportional attention; returns keys for matching."""
-    B, N, C = x.shape
-    qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, C // self.num_heads).permute(2, 0, 3, 1, 4)
+    """Attention as in vit_model (any head count, optional head gates), plus proportional attention;
+    returns the keys averaged over heads, used for matching."""
+    B, N, _ = x.shape
+    h = self.num_heads
+    d = self.qkv.out_features // (3 * h)
+    qkv = self.qkv(x).reshape(B, N, 3, h, d).permute(2, 0, 3, 1, 4)
     q, k, v = qkv[0], qkv[1], qkv[2]
     attn = (q @ k.transpose(-2, -1)) * self.scale
     if size is not None:
         attn = attn + size.log()[:, None, None, :, 0]
-    attn = self.attn_drop(attn.softmax(dim=-1))
-    x = self.proj_drop(self.proj((attn @ v).transpose(1, 2).reshape(B, N, C)))
+    out = self.attn_drop(attn.softmax(dim=-1)) @ v
+    gate = getattr(self, "head_gate", None)
+    if gate is not None:
+        out = out * gate.to(out.dtype)[None, :, None, None]
+    x = self.proj_drop(self.proj(out.transpose(1, 2).reshape(B, N, h * d)))
     return x, k.mean(dim=1)
 
 
@@ -94,16 +100,19 @@ def apply_tome(model, r):
     return model
 
 
-def vit_flops(tokens, r_list, dim=384, mlp_ratio=4, heads=6, patch_in=3 * 8 * 8, n_patches=784,
+def vit_flops(tokens, r_list, dims=None, dim=384, head_dim=64, patch_in=3 * 8 * 8, n_patches=784,
               head_in=1536, n_cls=6):
-    """FLOPs (1 multiply-add = 2) of one image, from the tokens entering each block."""
+    """FLOPs (1 multiply-add = 2) of one image, from the tokens entering each block.
+    dims: [(heads, mlp_hidden)] per block (vit_model.encoder_dims); default: the unpruned ViT-S/8."""
+    dims = dims or [(6, 1536)] * len(tokens)
     macs = n_patches * patch_in * dim + head_in * n_cls          # patch embedding + classifier
-    for n_in, r in zip(tokens, r_list):
+    for n_in, r, (h, m) in zip(tokens, r_list, dims):
         r_eff = max(0, min(r, (n_in - 1) // 2))
         n_out = n_in - r_eff
-        macs += 4 * n_in * dim * dim                             # qkv + proj
-        macs += 2 * n_in * n_in * dim                            # QK^T and attn @ V
-        macs += 2 * n_out * dim * mlp_ratio * dim                # MLP after merging
+        inner = h * head_dim
+        macs += n_in * dim * 3 * inner + n_in * inner * dim      # qkv + proj
+        macs += 2 * n_in * n_in * inner                          # QK^T and attn @ V
+        macs += 2 * n_out * dim * m                              # MLP after merging
         if r_eff:
-            macs += ((n_in + 1) // 2) * (n_in // 2) * (dim // heads)   # matching scores
+            macs += ((n_in + 1) // 2) * (n_in // 2) * head_dim   # matching scores
     return 2 * macs

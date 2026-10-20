@@ -142,8 +142,9 @@ def main():
     perm = reorder_index(names, dtr.class_names)
     print(f"train {len(dtr)}  val {len(dva)}  model order {names}  ->  label order {dtr.class_names}")
 
-    # G0: among all 720 possible class orders, ours must fit the labels best (on one val batch)
-    if not a.cpu_smoke:
+    # G0: among all 720 possible class orders, ours must fit the labels best (on one val batch).
+    # Only for trusted starts (--expect-val-emr given): a freshly pruned model predicts too poorly.
+    if not a.cpu_smoke and a.expect_val_emr is not None:
         model.eval()
         x, y = next(iter(lva))
         with torch.no_grad():

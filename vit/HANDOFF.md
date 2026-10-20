@@ -89,3 +89,9 @@ smoke 33066 -> control 33067 33068 33069 (seeds 0 1 2) -> ToMe 33070
   r=16: 76.46/79.11, 77.92/79.27, 76.62/80.06  (38.5 GFLOPs, ~1.02x)
   r=32: 76.46/78.96, 76.79/79.11, 75.97/79.59  (32.3 GFLOPs, ~1.26x)
   r=64: 75.16/78.32, 75.65/77.69, 74.51/78.01  (21.2 GFLOPs, ~1.97x)
+
+## Round 3 blocker (2026-10-20)
+
+`install_round3.sh` not present in ~/work/project-aida/vit — nothing installed,
+nothing checked, nothing launched. Waiting for the file (scp or nvim paste).
+Expected md5: 18de4b477402bed5f7614a423a2a7203.

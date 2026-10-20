@@ -20,10 +20,11 @@ EPOCHS="${EPOCHS:?set EPOCHS}"
 SEED="${SEED:-0}"
 CKPT="${CKPT:-$HOME/.cache/bikit-models/codebrim-classif-balanced_ViT_s8_1.pth}"
 EXPECT="${EXPECT:-76.30}"          # val EMR of the released model; EXPECT=none for other starts
+GUARD="${GUARD:-60}"               # min val EMR after epoch 3 (lower it for freshly pruned starts)
 G1=""
 [ "$EXPECT" != none ] && G1="--expect-val-emr $EXPECT"
 
-python train_vit.py --ckpt "$CKPT" --epochs "$EPOCHS" --seed "$SEED" $G1 --out "runs/vit_${TAG}"
+python train_vit.py --ckpt "$CKPT" --epochs "$EPOCHS" --seed "$SEED" $G1 --guard-min-emr "$GUARD" --out "runs/vit_${TAG}"
 python eval_vit.py --ckpt "runs/vit_${TAG}/best.pth" --tag "vit_${TAG}" --no-golden --split test --out results
 
 echo "=== done $(date) ==="
