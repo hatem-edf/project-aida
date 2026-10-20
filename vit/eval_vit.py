@@ -53,6 +53,7 @@ def parse_args():
     p.add_argument("--out", default="results")
     p.add_argument("--tag", default=None, help="name for output files (default: checkpoint name)")
     p.add_argument("--golden-only", action="store_true")
+    p.add_argument("--no-golden", action="store_true", help="skip the golden test (not released weights)")
     return p.parse_args()
 
 
@@ -120,7 +121,9 @@ def main():
     print(f"parameters: {n_params:,}   output order: {model_names}")
 
     tf = build_transform(cp["img_size"], mode="eval")
-    golden_ok = golden_test(model, model_names, build_transform(cp["img_size"], mode="demo"), device)   
+    golden_ok = None
+    if not args.no_golden:
+        golden_ok = golden_test(model, model_names, build_transform(cp["img_size"], mode="demo"), device)
     if args.golden_only:
         return
 
