@@ -95,3 +95,48 @@ smoke 33066 -> control 33067 33068 33069 (seeds 0 1 2) -> ToMe 33070
 `install_round3.sh` not present in ~/work/project-aida/vit — nothing installed,
 nothing checked, nothing launched. Waiting for the file (scp or nvim paste).
 Expected md5: 18de4b477402bed5f7614a423a2a7203.
+
+## Round 3 — gated width pruning, launched 2026-10-20
+
+### Step 1 — install
+`install_round3.sh` md5 `18de4b477402bed5f7614a423a2a7203` (matches); installer ended
+"install OK: 13 files written and verified". No code modified.
+
+### Step 2 — login-node checks (all pass)
+1. `eval_vit.py --golden-only`: **PASS** (worst 0.005 pts) — new any-width attention/MLP
+   forwards are exact on the released weights.
+2. `runs/vit_ctrl_ep100_seed0` max val EMR: **0.77597** (expected 0.776...).
+3. `sparsity_vit.py --cpu-smoke`: 2 epochs, saved **s15 s30 s50 s65 s80** as required.
+4. `prune_vit.py --ckpt s50.pth --ratio 0.5`: heads/block [1,1,1,1,1,1,1,5,6,6,6,6] (36/72),
+   neurons/block floor 154, params 21,666,091 -> 11,040,043 (**49.0% smaller**),
+   GFLOPs 44.8 -> 22.5, "saved". (All gates were 0 after the smoke's huge shrink, so the
+   per-block floors dominate — as designed.)
+5. `train_vit.py --cpu-smoke --ckpt pruned/vit_r05.pth`: end-to-end OK, ended
+   "best -> /tmp/vit_ft_smoke/best.pth".
+6. `import vit_table` OK.  /tmp dirs removed.
+
+### Step 3 — commit
+Round-3 code committed (19 vit files; a first commit again swept resnet50/ via a bare
+`git add -A` and was corrected with `git reset HEAD~1 -- resnet50` + amend).
+
+### Chain launched (detached)
+sparsity (60 ep from seed0 best, expect val EMR 77.60) -> prune 15/30/50/65/80%
+(each from its snapshot, else last.pth) -> 15 fine-tunes (5 ratios x 3 seeds, 100 ep,
+GUARD=20) -> vit_table with measured GPU speed + ResNet-50 reference.
+ETA ~12 h.
+
+## Return checklist (fill in when back online)
+1. `sacct -u $USER -S today -X --format=JobID,JobName%12,State,Elapsed,ExitCode`;
+   for failures: exit code + last 20 log lines.
+2. Sparsity log: per-epoch lines at ep 1, 5, 10, 20, 30, 40, 50, 60 (val EMR, heads off %,
+   neurons off %) + epoch each snapshot was saved.
+3. Prune log per ratio: snapshot used, heads/neurons per block, params, GFLOPs, val EMR gated -> pruned.
+4. Per ratio+seed: best val EMR + epoch, test EMR.
+5. `results/vit_table.md` verbatim.
+Do not launch anything new until the senior reviews.
+
+## Pruning launched 2026-10-20 16:01:00
+sparsity 33073 -> prune 33074 -> fine-tune 33075 33076 33077 33078 33079 33080 33081 33082 33083 33084 33085 33086 33087 33088 33089 -> table 33090
+
+## Prune fine-tunes relaunched 2026-10-20 18:21:08 (after cancellation of 33075-33090)
+fine-tune 33094 33095 33096 33097 33098 33099 33100 33101 33102 33103 33104 33105 33106 33107 33108 -> table 33109
