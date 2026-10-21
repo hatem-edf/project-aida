@@ -205,3 +205,6 @@ Cancelled by user: 33120 = **vit_prune_mlp_r08_ep100_seed2** (6 min in; its run 
 3. afterok: tome_all.sh (ToMe r=0,16,32,48,64 on all 24 pruned ViTs)
 4. afterok: bench_all.sh (results/bench_all.{md,png,json})
 5. Report per the round-4 return checklist above.
+
+## Round 4 resumed 2026-10-21 18:21:56 (after user pause; 33120/33121/33122 cancelled)
+fine-tune r08 s2 33125 -> ToMe on all pruned 33126 -> benchmark 33127
