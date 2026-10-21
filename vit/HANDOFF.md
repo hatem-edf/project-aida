@@ -157,3 +157,33 @@ Best val / test per ratio (3 seeds):
   r08:  val 66.72/68.02/67.21  test 70.41/69.62/68.04
 Final table: results/vit_table.md (80% pruned ViT = ResNet FLOPs but -10 EMR pts;
 ResNet still 1.7x faster in measured img/s).
+
+## Round 4 — MLP-only pruning + ToMe on pruned + final bench, launched 2026-10-21
+
+### Step 1 — install
+install_round4.sh md5 954c33a5137c730160831f94fae4b3cb (matches); "install OK: 5 files
+written and verified". No existing file changed.
+
+### Step 2 — checks (all pass)
+1. bench_all imports OK.
+2. tome_tokens FLOPs reproduce the sweeps exactly: [44.8, 32.3, 21.2] at r=0/32/64.
+3. MLP-only prune (s50, ratio 0.5, ratio-heads 0): heads 72/72, neurons 9216/18432
+   (identical neuron selection to round 3), params 21.67M -> 14.58M (**32.7% smaller**,
+   GFLOPs -24.8%; the brief's "about 25%" is the GFLOPs figure), "saved".
+4. ResNet references present: 5 pruned b160 ckpts + ft_control_ep160_seed0/best.pth,
+   15 ft_b160 test jsons.
+5. tmp cleaned.
+
+### Chain launched (detached)
+MLP-only prune 50/65/80% -> 9 fine-tunes (3 seeds x 100 ep) -> ToMe r=0,16,32,48,64
+on all 24 pruned ViTs -> bench_all final table + plot. ETA ~6 h.
+
+## Return checklist (fill in when back online)
+1. sacct job states; for failures: exit code + last 20 log lines.
+2. MLP-only prune per ratio: val EMR gated -> pruned, params, GFLOPs — side by side
+   with round 3 heads+MLP (r05: 69.64 -> 1.46, 11.04M, 22.5 GFLOPs;
+   r065: 71.10 -> 0.81, 7.83M, 15.7; r08: 71.43 -> 0.81, 4.62M, 8.9).
+3. Per MLP-only ratio: test EMR mean +/- std over 3 seeds.
+4. results/bench_all.md verbatim + Pareto-marked models.
+5. Send Hatem results/bench_all.png.
+After this round the ViT work stops; write-up follows.
