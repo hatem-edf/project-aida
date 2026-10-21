@@ -187,3 +187,21 @@ on all 24 pruned ViTs -> bench_all final table + plot. ETA ~6 h.
 4. results/bench_all.md verbatim + Pareto-marked models.
 5. Send Hatem results/bench_all.png.
 After this round the ViT work stops; write-up follows.
+
+## Round 4 launched 2026-10-21 10:57:42
+MLP-only prune 33111 -> fine-tune 33112 33113 33114 33115 33116 33117 33118 33119 33120 -> ToMe on all pruned 33121 -> benchmark 33122
+
+## Round 4 PAUSED at user request (GPUs needed) — state snapshot 2026-10-21
+
+Completed: 33111 MLP-only prune (pruned/vit_mlp_r05/r065/r08.pth + stats); fine-tunes
+33112-33119 = 8 of 9 runs, all COMPLETED with results/vit_prune_mlp_*_test.json.
+Cancelled by user: 33120 = **vit_prune_mlp_r08_ep100_seed2** (6 min in; its run dir holds
+~7 epochs of partial best/last/history), 33121 ToMe-all, 33122 bench.
+
+### Resume procedure (when told)
+1. rm -rf runs/vit_prune_mlp_r08_ep100_seed2   (partial dir of the cancelled run)
+2. sbatch the one missing fine-tune:
+   CKPT=pruned/vit_mlp_r08.pth EXPECT=none GUARD=20 EPOCHS=100 SEED=2 TAG=prune_mlp_r08_ep100_seed2 train_vit.sh
+3. afterok: tome_all.sh (ToMe r=0,16,32,48,64 on all 24 pruned ViTs)
+4. afterok: bench_all.sh (results/bench_all.{md,png,json})
+5. Report per the round-4 return checklist above.
