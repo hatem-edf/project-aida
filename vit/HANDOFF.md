@@ -140,3 +140,20 @@ sparsity 33073 -> prune 33074 -> fine-tune 33075 33076 33077 33078 33079 33080 3
 
 ## Prune fine-tunes relaunched 2026-10-20 18:21:08 (after cancellation of 33075-33090)
 fine-tune 33094 33095 33096 33097 33098 33099 33100 33101 33102 33103 33104 33105 33106 33107 33108 -> table 33109
+
+## Round 3 results (filled in 2026-10-20 evening)
+
+All 16 resumed jobs (33094-33109) COMPLETED exit 0.
+Sparsity: snapshots at ep 27 (s15), 30 (s30), 35 (s50), 39 (s65), 48 (s80).
+Only MLP-neuron gates went to 0 (88.1% by ep 60); head gates never hit 0
+(min mean 0.332) — all head removals came from ranking small nonzero gates.
+Pruned-before-ft val EMR collapsed at high ratios (r05 1.46, r065/r08 0.81),
+hence GUARD=20 was the right call.
+Best val / test per ratio (3 seeds):
+  r015: val 75.65/75.65/76.95  test 77.69/77.06/78.16
+  r03:  val 75.65/75.81/75.65  test 75.63/74.21/76.74
+  r05:  val 75.00/75.49/75.81  test 75.79/75.00/75.16
+  r065: val 70.62/71.59/70.94  test 71.99/71.84/71.20
+  r08:  val 66.72/68.02/67.21  test 70.41/69.62/68.04
+Final table: results/vit_table.md (80% pruned ViT = ResNet FLOPs but -10 EMR pts;
+ResNet still 1.7x faster in measured img/s).
