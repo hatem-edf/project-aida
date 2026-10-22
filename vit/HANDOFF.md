@@ -208,3 +208,18 @@ Cancelled by user: 33120 = **vit_prune_mlp_r08_ep100_seed2** (6 min in; its run 
 
 ## Round 4 resumed 2026-10-21 18:21:56 (after user pause; 33120/33121/33122 cancelled)
 fine-tune r08 s2 33125 -> ToMe on all pruned 33126 -> benchmark 33127
+
+## Round 4 results (filled in 2026-10-21 evening)
+
+33125/33126/33127 COMPLETED exit 0. Hypothesis CONFIRMED: the round-3 collapse came
+from cutting still-used heads.
+MLP-only vs heads+MLP (same neuron ratio, round 3 in parentheses):
+  50%: test 76.53 +/- 0.48  (75.32)   gated->pruned val 68.99 (1.46!)
+  65%: test 76.85 +/- 0.18  (71.68)   gated->pruned val 69.97 (0.81!)
+  80%: test 75.16 +/- 0.55  (69.36)   gated->pruned val 70.13 (0.81!)
+MLP-only never collapses: the gates that went to 0 really were dead neurons.
+Final benchmark: results/bench_all.md/.png/.json (59 models incl. ToMe combos).
+Pareto-marked: ResNet-50 ft / 30 / 50 / 80% pruned + ViT-S/8 ft and ft+ToMe r=16.
+At the ResNet's 8.17 GFLOPs (79.32 @ 1870 img/s) no ViT variant comes close:
+best ViT at similar FLOPs is 80% MLP-only, 75.16 @ 359 img/s (27.0 GFLOPs).
+ViT sweet spot: 65% MLP-only, 76.85 +/- 0.18 @ 30.4 GFLOPs, 12.45M params.
